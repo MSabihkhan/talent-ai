@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Briefcase, Calendar, MapPin, Eye, LayoutGrid, List } from 'lucide-react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { ThemeToggle } from '../components/ThemeToggle';
+import { ThemeToggle } from '@/adapters/primary/ui/components/ThemeToggle';
 
 const initialApplications = {
   applied: [

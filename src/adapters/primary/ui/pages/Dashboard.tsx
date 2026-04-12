@@ -3,7 +3,7 @@ import { Home, User, FileText, Search, ClipboardList, MessageSquare, Bell, Setti
 import { Link } from 'react-router';
 import { useState, useEffect } from 'react';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { Button } from '../components/ui/button';
+import { Button } from "@/adapters/primary/ui/components/base/button";
 
 export default function Dashboard() {
   const [activeNav, setActiveNav] = useState('dashboard');

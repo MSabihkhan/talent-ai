@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import { Sparkles, Upload, Brain, Briefcase, CheckCircle, Users, TrendingUp, Shield, ArrowRight } from 'lucide-react';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { Button } from '../components/ui/button';
+import { Button } from "@/adapters/primary/ui/components/base/button";
 
 export default function Landing() {
   return (

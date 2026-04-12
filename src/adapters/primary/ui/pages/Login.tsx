@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import { Eye, EyeOff } from 'lucide-react';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { Button } from '../components/ui/button';
+import { Button } from "@/adapters/primary/ui/components/base/button";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);

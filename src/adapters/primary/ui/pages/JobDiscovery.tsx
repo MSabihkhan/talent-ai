@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 import { Search, MapPin, Clock, Briefcase, DollarSign, Filter, SlidersHorizontal } from 'lucide-react';
 import { Link } from 'react-router';
 import { useState } from 'react';
-import { ThemeToggle } from '../components/ThemeToggle';
+import { ThemeToggle } from '@/adapters/primary/ui/components/ThemeToggle';
 
 const jobs = [
   {
