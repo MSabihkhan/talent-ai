@@ -5,24 +5,26 @@ import { MongooseUserRepository } from './adapters/secondary/db/MongooseUserRepo
 import { RegisterUser } from './domain/use-cases/RegisterUser';
 import { UserController } from './adapters/primary/rest/controllers/UserController';
 import { createUserRoutes } from './adapters/primary/rest/routes/UserRoutes';
-
+import { LoginUser } from './domain/use-cases/LoginUser';
 dotenv.config();
 
 const mongoUri = process.env.MONGO_URI;
+const port = process.env.PORT
 
 const app = express();
 app.use(express.json());
 
-// --- Assembly (read bottom-up like a pyramid) ---
 const userRepository  = new MongooseUserRepository();       
 const registerUser    = new RegisterUser(userRepository);   
-const userController  = new UserController(registerUser);   
+const loginUser = new LoginUser(userRepository)
+const userController  = new UserController(registerUser,loginUser);   
+
 app.use('/api/users', createUserRoutes(userController));    
 
 // --- Start ---
 mongoose.connect(mongoUri!)
   .then(() => {
     console.log('MongoDB connected');
-    app.listen(3000, () => console.log('Server on http://localhost:3000'));
+    app.listen(port, () => console.log(`Server on http://localhost:${port}`));
   })
   .catch((err) => console.error('DB error:', err));
