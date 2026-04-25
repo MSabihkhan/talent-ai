@@ -7,15 +7,15 @@ export class MongooseUserRepository implements IUserRepository {
   async findByEmail(email: string) {
     const userDoc = await UserModel.findOne({ email });
     if (!userDoc) return null;
-
-  // We manually "map" the database fields to the Domain User
   return {
     id: userDoc.id,
     name: userDoc.name,
     email: userDoc.email,
     passwordHash: userDoc.passwordHash,
     role: userDoc.role as 'candidate' | 'recruiter' | 'admin',
-    createdAt: userDoc.createdAt as Date
+    createdAt: userDoc.createdAt as Date,
+    phone: userDoc.get('phone')?? null,    
+    location: userDoc.get('location')?? null 
   };
   }
 
@@ -28,12 +28,13 @@ export class MongooseUserRepository implements IUserRepository {
     email: userDoc.email,
     passwordHash: userDoc.passwordHash,
     role: userDoc.role as 'candidate' | 'recruiter' | 'admin',
-    createdAt: userDoc.createdAt as Date
+    createdAt: userDoc.createdAt as Date,
+    phone: userDoc.get('phone')?? null,    
+    location: userDoc.get('location')?? null 
   };
   }
 
 async save(user: User): Promise<User> {
-  // Directly create the user; if it fails, Mongoose will throw an error
   const created = await UserModel.create(user);
   
   return {
@@ -42,11 +43,33 @@ async save(user: User): Promise<User> {
     email: created.email,
     passwordHash: created.passwordHash,
     role: created.role as 'candidate' | 'recruiter' | 'admin',
-    createdAt: created.createdAt
+    createdAt: created.createdAt,
+    phone: created.get('phone')?? null,
+    location: created.get('location') ?? null
   };
 }
 
   async exists(email: string) {
     return !!(await UserModel.findOne({ email }));
   }
+
+  async update(id: string, data: Partial<User>): Promise<User | null> {
+  const updatedDoc = await UserModel.findOneAndUpdate({ id }, { $set: data }, { new: true });
+  if (!updatedDoc) return null;
+
+  return {
+    id: updatedDoc.id,
+    name: updatedDoc.name,
+    email: updatedDoc.email,
+    role: updatedDoc.role as 'candidate' | 'recruiter' | 'admin',
+    createdAt: updatedDoc.createdAt,       
+    phone: updatedDoc.get('phone')?? null,        
+    location: updatedDoc.get('location')?? null   
+  };
+}
+
+async delete(id: string): Promise<boolean> {
+  const result = await UserModel.deleteOne({ id });
+  return result.deletedCount > 0;
+}
 }

@@ -6,6 +6,8 @@ import { RegisterUser } from './domain/use-cases/RegisterUser';
 import { UserController } from './adapters/primary/rest/controllers/UserController';
 import { createUserRoutes } from './adapters/primary/rest/routes/UserRoutes';
 import { LoginUser } from './domain/use-cases/LoginUser';
+import { DeleteUser } from './domain/use-cases/DeleteUser';
+import { UpdateProfile } from './domain/use-cases/UpdateProfile';
 dotenv.config();
 
 const mongoUri = process.env.MONGO_URI;
@@ -17,7 +19,9 @@ app.use(express.json());
 const userRepository  = new MongooseUserRepository();       
 const registerUser    = new RegisterUser(userRepository);   
 const loginUser = new LoginUser(userRepository)
-const userController  = new UserController(registerUser,loginUser);   
+const deleteUser = new DeleteUser(userRepository)
+const updateProfile = new UpdateProfile(userRepository)
+const userController  = new UserController(registerUser,loginUser,updateProfile,deleteUser);   
 
 app.use('/api/users', createUserRoutes(userController));    
 

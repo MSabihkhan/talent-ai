@@ -5,4 +5,6 @@ export interface User {
   passwordHash?: string;
   role: 'candidate' | 'recruiter' | 'admin';
   createdAt?: Date;
+  phone?:string | null;
+  location?:string | null;
 }
