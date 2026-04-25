@@ -1,31 +1,52 @@
-import { User } from '../../../domain/models/User';
 import { IUserRepository } from '../../../domain/ports/secondary/IUserRepository';
+import { User } from '../../../domain/models/User';
 import { UserModel } from './UserSchema';
 
 export class MongooseUserRepository implements IUserRepository {
-  async save(user: User): Promise<User> {
-    const newUser = new UserModel(user);
-    const savedUser = await newUser.save();
-    return this.mapToDomain(savedUser);
+
+  async findByEmail(email: string) {
+    const userDoc = await UserModel.findOne({ email });
+    if (!userDoc) return null;
+
+  // We manually "map" the database fields to the Domain User
+  return {
+    id: userDoc.id,
+    name: userDoc.name,
+    email: userDoc.email,
+    passwordHash: userDoc.passwordHash,
+    role: userDoc.role as 'candidate' | 'recruiter' | 'admin',
+    createdAt: userDoc.createdAt as Date
+  };
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    const user = await UserModel.findOne({ email });
-    return user ? this.mapToDomain(user) : null;
-  }
-
-  async findById(id: string): Promise<User | null> {
-    const user = await UserModel.findById(id);
-    return user ? this.mapToDomain(user) : null;
-  }
-
-  private mapToDomain(userDoc: any): User {
+  async findById(id: string) {
+    const userDoc = await UserModel.findOne({ id });
+    if (!userDoc) return null;
     return {
-      id: userDoc._id.toString(),
-      name: userDoc.name,
-      email: userDoc.email,
-      role: userDoc.role,
-      createdAt: userDoc.createdAt
-    };
+    id: userDoc.id,
+    name: userDoc.name,
+    email: userDoc.email,
+    passwordHash: userDoc.passwordHash,
+    role: userDoc.role as 'candidate' | 'recruiter' | 'admin',
+    createdAt: userDoc.createdAt as Date
+  };
+  }
+
+async save(user: User): Promise<User> {
+  // Directly create the user; if it fails, Mongoose will throw an error
+  const created = await UserModel.create(user);
+  
+  return {
+    id: created.id,
+    name: created.name,
+    email: created.email,
+    passwordHash: created.passwordHash,
+    role: created.role as 'candidate' | 'recruiter' | 'admin',
+    createdAt: created.createdAt
+  };
+}
+
+  async exists(email: string) {
+    return !!(await UserModel.findOne({ email }));
   }
 }
