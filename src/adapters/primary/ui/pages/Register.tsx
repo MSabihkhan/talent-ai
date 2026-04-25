@@ -231,7 +231,9 @@ export default function Register() {
               type="submit"
               onClick={(e) => {
                 e.preventDefault();
-                window.location.href = '/dashboard';
+                const role = selectedRole ?? 'candidate';
+                localStorage.setItem('talentai-role', role);
+                window.location.href = role === 'recruiter' ? '/recruiter/dashboard' : '/dashboard';
               }}
               className="w-full py-3.5 rounded-xl transition-all duration-150 active:scale-[0.97]"
               style={{

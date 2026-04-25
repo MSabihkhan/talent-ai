@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Briefcase, Building2 } from 'lucide-react';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { Button } from "@/adapters/primary/ui/components/base/button";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState<'candidate' | 'recruiter'>('candidate');
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--bg-primary)' }}>
@@ -54,15 +55,38 @@ export default function Login() {
           </span>
         </Link>
 
-        <h1 
+        <h1
           className="text-4xl mb-2"
           style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}
         >
           Welcome back
         </h1>
-        <p className="mb-8" style={{ color: 'var(--text-secondary)' }}>
+        <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
           Sign in to continue your journey
         </p>
+
+        {/* Role toggle */}
+        <div className="flex gap-3 mb-8">
+          {([
+            { value: 'candidate', icon: Briefcase,  label: 'Candidate' },
+            { value: 'recruiter', icon: Building2,  label: 'Recruiter' },
+          ] as const).map(r => (
+            <button
+              key={r.value}
+              type="button"
+              onClick={() => setRole(r.value)}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+              style={{
+                background: role === r.value ? 'var(--gradient-radial-subtle)' : 'var(--bg-tertiary)',
+                border: role === r.value ? '1px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
+                color: role === r.value ? 'var(--accent-primary)' : 'var(--text-secondary)',
+              }}
+            >
+              <r.icon className="w-4 h-4" />
+              {r.label}
+            </button>
+          ))}
+        </div>
 
         <form className="space-y-6">
           <div>
@@ -132,7 +156,8 @@ export default function Login() {
             type="submit"
             onClick={(e) => {
               e.preventDefault();
-              window.location.href = '/dashboard';
+              localStorage.setItem('talentai-role', role);
+              window.location.href = role === 'recruiter' ? '/recruiter/dashboard' : '/dashboard';
             }}
             variant="gradient"
             size="lg"

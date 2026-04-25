@@ -51,14 +51,14 @@ export default function Dashboard() {
         {/* Navigation */}
         <nav className="flex-1 px-3">
           {[
-            { id: 'dashboard', icon: Home, label: 'Dashboard', to: '/dashboard' },
-            { id: 'profile', icon: User, label: 'My Profile' },
-            { id: 'cv', icon: FileText, label: 'My CV' },
-            { id: 'jobs', icon: Search, label: 'Find Jobs', to: '/jobs' },
-            { id: 'applications', icon: ClipboardList, label: 'Applications', to: '/applications' },
-            { id: 'messages', icon: MessageSquare, label: 'Messages' },
-            { id: 'notifications', icon: Bell, label: 'Notifications' },
-            { id: 'settings', icon: Settings, label: 'Settings' },
+            { id: 'dashboard',     icon: Home,          label: 'Dashboard',    to: '/dashboard'     },
+            { id: 'profile',       icon: User,          label: 'My Profile',   to: '/profile'       },
+            { id: 'cv',            icon: FileText,      label: 'My CV',        to: '/cv'            },
+            { id: 'jobs',          icon: Search,        label: 'Find Jobs',    to: '/jobs'          },
+            { id: 'applications',  icon: ClipboardList, label: 'Applications', to: '/applications'  },
+            { id: 'messages',      icon: MessageSquare, label: 'Messages',     to: '/messages'      },
+            { id: 'notifications', icon: Bell,          label: 'Notifications',to: '/notifications' },
+            { id: 'settings',      icon: Settings,      label: 'Settings',     to: '/settings'      },
           ].map((item) => {
             const isActive = activeNav === item.id;
             const Component = item.to ? Link : 'button';
