@@ -6,6 +6,7 @@ import { GetJobs } from '../../../../domain/use-cases/GetJobs';
 import { GetJobById } from '../../../../domain/use-cases/GetJobsById';
 import { UpdateJob } from '../../../../domain/use-cases/UpdateJobs';
 import { DeleteJob } from '../../../../domain/use-cases/DeleteJob';
+import { GetRecruiterJobs } from '../../../../domain/use-cases/GetRecruiterJobs';
 import mongoose from 'mongoose';
 
 interface AuthRequest extends Request {
@@ -103,6 +104,23 @@ export class JobController {
             const useCase = new DeleteJob(this.jobRepo);
             await useCase.execute(req.params.id, recruiterId);
             res.status(204).send();
+        } catch (error: any) {
+            res.status(error.statusCode || 500).json({ error: error.message });
+        }
+    }
+
+    // GET /api/jobs/recruiter/me
+    async getJobsByRecruiter(req: AuthRequest, res: Response) {
+        try {
+            const recruiterId = req.user?.id;
+
+            if (!recruiterId) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const useCase = new GetRecruiterJobs(this.jobRepo);
+            const jobs = await useCase.execute(recruiterId);
+            res.json(jobs);
         } catch (error: any) {
             res.status(error.statusCode || 500).json({ error: error.message });
         }
