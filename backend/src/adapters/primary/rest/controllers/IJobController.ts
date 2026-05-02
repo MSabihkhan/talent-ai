@@ -9,6 +9,8 @@ import { UpdateJob } from '../../../../domain/use-cases/UpdateJobs';
 import { DeleteJob } from '../../../../domain/use-cases/DeleteJob';
 import { GetRecruiterJobs } from '../../../../domain/use-cases/GetRecruiterJobs';
 import { ApplyForJob } from '../../../../domain/use-cases/ApplyForJob';
+import { GetRecommendedJobs } from '../../../../domain/use-cases/GetRecommendedJobs';
+import { IAIService } from '../../../../domain/ports/secondary/IAIService';
 import mongoose from 'mongoose';
 
 interface AuthRequest extends Request {
@@ -23,12 +25,19 @@ export class JobController {
     private jobRepo: JobRepository;
     private userRepo: MongooseUserRepository;
     private applicationRepo: ApplicationRepository;
+    private aiService: IAIService;
 
     // ✅ Constructor accepts both repositories
-    constructor(jobRepo: JobRepository, userRepo: MongooseUserRepository, applicationRepo: ApplicationRepository) {
+    constructor(
+        jobRepo: JobRepository, 
+        userRepo: MongooseUserRepository, 
+        applicationRepo: ApplicationRepository,
+        aiService: IAIService
+    ) {
         this.jobRepo = jobRepo;
         this.userRepo = userRepo;
         this.applicationRepo = applicationRepo;
+        this.aiService = aiService;
     }
 
     // POST /api/jobs
@@ -166,6 +175,22 @@ export class JobController {
 
             const updatedJob = await this.jobRepo.update(jobId, { status, updatedAt: new Date() });
             res.json(updatedJob);
+        } catch (error: any) {
+            res.status(error.statusCode || 500).json({ error: error.message });
+        }
+    }
+
+    // GET /api/jobs/recommended
+    async getRecommendedJobs(req: AuthRequest, res: Response) {
+        try {
+            const candidateId = req.user?.id;
+            if (!candidateId) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const useCase = new GetRecommendedJobs(this.jobRepo, this.userRepo, this.aiService);
+            const recommendations = await useCase.execute(candidateId);
+            res.json(recommendations);
         } catch (error: any) {
             res.status(error.statusCode || 500).json({ error: error.message });
         }

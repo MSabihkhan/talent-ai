@@ -8,4 +8,5 @@ export interface IJobRepository {
     update(id: string, data: Partial<IJob>): Promise<IJob | null>;
     delete(id: string): Promise<boolean>;
     incrementViews(id: string): Promise<void>;
+    findActiveJobsForMatching(limit: number): Promise<IJob[]>;
 }

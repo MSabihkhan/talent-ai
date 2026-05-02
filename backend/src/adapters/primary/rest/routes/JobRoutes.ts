@@ -7,6 +7,7 @@ export const JobRoutes = (controller: JobController): Router => {
 
     // Public routes
     router.get('/jobs', (req, res) => controller.getAllJobs(req, res));
+    router.get('/jobs/recommended', authMiddleware, (req, res) => controller.getRecommendedJobs(req as any, res));
     router.get('/jobs/:id', (req, res) => controller.getJobById(req, res));
 
     // Protected routes

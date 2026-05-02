@@ -39,6 +39,13 @@ export class JobRepository implements IJobRepository {
         await JobModel.findByIdAndUpdate(id, { $inc: { views: 1 } });
     }
 
+    async findActiveJobsForMatching(limit: number): Promise<IJob[]> {
+        const docs = await JobModel.find({ status: 'active' })
+            .sort({ createdAt: -1 })
+            .limit(limit);
+        return docs.map(doc => this.toJob(doc));
+    }
+
     // Convert MongoDB document to domain model
     private toJob(doc: any): IJob {
         return {

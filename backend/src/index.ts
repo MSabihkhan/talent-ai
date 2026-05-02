@@ -61,7 +61,7 @@ const userController = new UserController(
 // ============ JOB & APPLICATION SETUP ✅ ============
 const jobRepository = new JobRepository();
 const applicationRepository = new ApplicationRepository();
-const jobController = new JobController(jobRepository, userRepository, applicationRepository);
+const jobController = new JobController(jobRepository, userRepository, applicationRepository, aiService);
 const applicationController = new ApplicationController(applicationRepository, jobRepository, userRepository);
 
 // ============ ROUTES ============

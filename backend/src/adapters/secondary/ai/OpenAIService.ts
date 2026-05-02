@@ -154,4 +154,61 @@ Be specific, constructive, and actionable in your feedback.`;
 
         return JSON.parse(content) as CvFeedback;
     }
+
+    async matchJobsToProfile(profileData: any, jobs: any[]): Promise<any[]> {
+        const prompt = `You are an AI job matcher. Match this candidate to the best 5 jobs from the list.
+        
+        Candidate Profile:
+        ${JSON.stringify(profileData, null, 2)}
+
+        Available Jobs:
+        ${JSON.stringify(jobs.map(j => ({ 
+            id: j.id, 
+            title: j.title, 
+            requirements: j.requirements, 
+            description: j.description.substring(0, 200) + '...',
+            experienceLevel: j.experienceLevel
+        })), null, 2)}
+
+        Return ONLY a valid JSON array of objects with this structure:
+        [
+          { "jobId": "string", "matchScore": number (0-100), "matchReason": "string" }
+        ]
+        
+        Sort them by matchScore descending.`;
+
+        const response = await this.client.chat.completions.create({
+            model: 'openai/gpt-3.5-turbo',
+            messages: [
+                { role: 'system', content: 'You are a professional recruiting assistant that specializes in technical job matching.' },
+                { role: 'user', content: prompt }
+            ],
+            response_format: { type: 'json_object' }
+        });
+
+        const content = response.choices[0].message.content;
+        if (!content) return [];
+        
+        try {
+            const parsed = JSON.parse(content);
+            let matches = [];
+            
+            if (Array.isArray(parsed)) {
+                matches = parsed;
+            } else if (parsed && typeof parsed === 'object') {
+                // If it returned an object like { "matches": [...] }
+                const firstValue = Object.values(parsed)[0];
+                if (Array.isArray(firstValue)) {
+                    matches = firstValue;
+                } else if (Array.isArray((parsed as any).matches)) {
+                    matches = (parsed as any).matches;
+                }
+            }
+            
+            return matches;
+        } catch (e) {
+            console.error("Failed to parse AI job matching response:", e);
+            return [];
+        }
+    }
 }
