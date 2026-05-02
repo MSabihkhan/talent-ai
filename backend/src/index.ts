@@ -12,6 +12,7 @@ import { ParseCvUseCase } from './domain/use-cases/ParseCvUseCase';
 import { SaveProfileUseCase } from './domain/use-cases/SaveProfileUseCase'; 
 import { GetProfileUseCase } from './domain/use-cases/GetProfileUseCase';   
 import { OpenRouterService } from './adapters/secondary/ai/OpenAIService';
+import { AnalyzeCvUseCase } from './domain/use-cases/AnalyzeCvUseCase';
 
 dotenv.config();
 
@@ -33,7 +34,7 @@ const updateProfile = new UpdateProfile(userRepository);
 const parseCvUseCase = new ParseCvUseCase(aiService);         
 const saveProfileUseCase = new SaveProfileUseCase(userRepository);
 const getProfileUseCase = new GetProfileUseCase(userRepository);   
-
+const analyzeCvUseCase = new AnalyzeCvUseCase(aiService);
 // Controller
 const userController = new UserController(
   registerUser,
@@ -42,7 +43,8 @@ const userController = new UserController(
   deleteUser,
   parseCvUseCase,      
   saveProfileUseCase,  
-  getProfileUseCase    
+  getProfileUseCase,
+  analyzeCvUseCase
 );
 
 app.use('/api/users', createUserRoutes(userController));

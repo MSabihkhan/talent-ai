@@ -44,3 +44,10 @@ export interface ParsedCvData {
     education: IEducation[];
     certifications: string[];
 }
+
+export interface CvFeedback {
+  strengths: string[];
+  areasToImprove: string[];
+  recommendedActions: string[];
+  overallScore: number; // 0-100
+}

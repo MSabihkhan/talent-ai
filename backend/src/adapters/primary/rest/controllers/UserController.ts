@@ -7,7 +7,7 @@ import { UpdateProfile } from '@/domain/use-cases/UpdateProfile';
 import { SaveProfileUseCase } from '@/domain/use-cases/SaveProfileUseCase';
 import { ParseCvUseCase } from '@/domain/use-cases/ParseCvUseCase';
 import { GetProfileUseCase } from '@/domain/use-cases/GetProfileUseCase';
-
+import { AnalyzeCvUseCase } from '@/domain/use-cases/AnalyzeCvUseCase';
 export class UserController {
   constructor(
     private registerUser: RegisterUser,
@@ -16,7 +16,8 @@ export class UserController {
     private deleteUser: DeleteUser,
     private parseCvUseCase: ParseCvUseCase,      
     private saveProfileUseCase: SaveProfileUseCase,  
-    private getProfileUseCase: GetProfileUseCase     
+    private getProfileUseCase: GetProfileUseCase,
+    private analyzeCvUseCase: AnalyzeCvUseCase
   ) {}
 
   register = async (req: Request, res: Response) => {
@@ -139,4 +140,26 @@ export class UserController {
       res.status(500).json({ error: 'Internal server error' });
     }
   }
+  
+  analyzeCv = async (req: Request, res: Response) => {
+    try {
+      const { cvData } = req.body;
+
+      if (!cvData) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'cvData is required' 
+        });
+      }
+
+      const feedback = await this.analyzeCvUseCase.execute(cvData);
+
+      res.json({ 
+        success: true, 
+        data: feedback 
+      });
+    } catch (err) {
+      this.handleError(res, err);
+    }
+  };
 }

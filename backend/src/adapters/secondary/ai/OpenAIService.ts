@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { IAIService } from '../../../domain/ports/secondary/IAIService';
-import { ParsedCvData } from '../../../domain/models/Profile';
+import { ParsedCvData,CvFeedback } from '../../../domain/models/Profile';
 
 const pdf = require('pdf-parse');
 
@@ -106,5 +106,52 @@ export class OpenRouterService implements IAIService {
 
             throw new Error(`CV Parsing failed: ${error.message}`);
         }
+    }
+    
+     async analyzeCv(cvData: ParsedCvData): Promise<CvFeedback> {
+        const prompt = `You are an expert CV reviewer. Analyze this resume data and provide detailed feedback.
+
+Resume Data:
+${JSON.stringify(cvData, null, 2)}
+
+Provide feedback in the following JSON format:
+{
+  "strengths": ["strength 1", "strength 2", "strength 3"],
+  "areasToImprove": ["area 1", "area 2", "area 3"],
+  "recommendedActions": ["action 1", "action 2", "action 3"],
+  "overallScore": <number between 0-100>
+}
+
+Scoring criteria:
+- Skills relevance and diversity: 25 points
+- Experience quality and detail: 25 points
+- Education credentials: 15 points
+- Profile completeness (links, certifications, about): 20 points
+- Professional presentation and clarity: 15 points
+
+Be specific, constructive, and actionable in your feedback.`;
+
+        const response = await this.client.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are a professional CV reviewer with expertise in recruiting and career development. Provide honest, constructive feedback.'
+                },
+                {
+                    role: 'user',
+                    content: prompt
+                }
+            ],
+            response_format: { type: 'json_object' },
+            temperature: 0.7
+        });
+
+        const content = response.choices[0].message.content;
+        if (!content) {
+            throw new Error('AI returned empty feedback');
+        }
+
+        return JSON.parse(content) as CvFeedback;
     }
 }

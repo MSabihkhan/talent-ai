@@ -31,6 +31,6 @@ export function createUserRoutes(ctrl: UserController): Router {
   router.post('/cv/upload', authMiddleware, upload.single('cv'), ctrl.parseCv);
   router.post('/cv/save', authMiddleware, ctrl.saveCv);
   router.get('/cv/profile', authMiddleware, ctrl.getProfile);
-  
+  router.post('/cv/analyze', authMiddleware, ctrl.analyzeCv); 
   return router;
 }
