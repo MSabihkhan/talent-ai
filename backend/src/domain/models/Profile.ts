@@ -51,3 +51,12 @@ export interface CvFeedback {
   recommendedActions: string[];
   overallScore: number; // 0-100
 }
+
+export interface ICompanyProfile {
+    userId: string;
+    companyName: string;
+    industry: string;
+    companySize: string;
+    website: string;
+    description: string;
+}

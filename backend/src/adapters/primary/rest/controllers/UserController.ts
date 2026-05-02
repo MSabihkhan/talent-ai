@@ -8,6 +8,8 @@ import { SaveProfileUseCase } from '@/domain/use-cases/SaveProfileUseCase';
 import { ParseCvUseCase } from '@/domain/use-cases/ParseCvUseCase';
 import { GetProfileUseCase } from '@/domain/use-cases/GetProfileUseCase';
 import { AnalyzeCvUseCase } from '@/domain/use-cases/AnalyzeCvUseCase';
+import { SaveCompanyProfileUseCase } from '@/domain/use-cases/SaveCompanyProfileUseCase';
+import { GetCompanyProfileUseCase } from '@/domain/use-cases/GetCompanyProfileUseCase';
 export class UserController {
   constructor(
     private registerUser: RegisterUser,
@@ -17,7 +19,9 @@ export class UserController {
     private parseCvUseCase: ParseCvUseCase,      
     private saveProfileUseCase: SaveProfileUseCase,  
     private getProfileUseCase: GetProfileUseCase,
-    private analyzeCvUseCase: AnalyzeCvUseCase
+    private analyzeCvUseCase: AnalyzeCvUseCase,
+    private saveCompanyProfileUseCase: SaveCompanyProfileUseCase,
+    private getCompanyProfileUseCase: GetCompanyProfileUseCase
   ) {}
 
   register = async (req: Request, res: Response) => {
@@ -158,6 +162,29 @@ export class UserController {
         success: true, 
         data: feedback 
       });
+    } catch (err) {
+      this.handleError(res, err);
+    }
+  };
+
+  saveCompanyProfile = async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.id;
+      await this.saveCompanyProfileUseCase.execute(userId, req.body);
+      res.json({ success: true, message: 'Company profile saved successfully' });
+    } catch (err) {
+      this.handleError(res, err);
+    }
+  };
+
+  getCompanyProfile = async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.id;
+      const profile = await this.getCompanyProfileUseCase.execute(userId);
+      if (!profile) {
+        return res.status(404).json({ success: false, error: 'Company profile not found' });
+      }
+      res.json({ success: true, data: profile });
     } catch (err) {
       this.handleError(res, err);
     }

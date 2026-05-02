@@ -32,5 +32,10 @@ export function createUserRoutes(ctrl: UserController): Router {
   router.post('/cv/save', authMiddleware, ctrl.saveCv);
   router.get('/cv/profile', authMiddleware, ctrl.getProfile);
   router.post('/cv/analyze', authMiddleware, ctrl.analyzeCv); 
+
+  // Company profile routes
+  router.post('/company/profile', authMiddleware, ctrl.saveCompanyProfile);
+  router.get('/company/profile', authMiddleware, ctrl.getCompanyProfile);
+
   return router;
 }

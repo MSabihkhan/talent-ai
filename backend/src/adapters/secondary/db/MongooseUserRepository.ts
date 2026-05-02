@@ -2,7 +2,8 @@ import { IUserRepository } from '../../../domain/ports/secondary/IUserRepository
 import { User } from '../../../domain/models/User';
 import { UserModel } from './UserSchema';
 import { CandidateProfileModel } from '../db/CandidateProfile';
-import { ICandidateProfile, ParsedCvData } from '../../../domain/models/Profile';
+import { CompanyProfileModel } from '../db/CompanyProfile';
+import { ICandidateProfile, ParsedCvData, ICompanyProfile } from '../../../domain/models/Profile';
 export class MongooseUserRepository implements IUserRepository {
 
   async findByEmail(email: string) {
@@ -101,5 +102,17 @@ async delete(id: string): Promise<boolean> {
 
     async getProfile(userId: string): Promise<ICandidateProfile | null> {
         return CandidateProfileModel.findOne({ userId }).lean();
+    }
+
+    async saveCompanyProfile(userId: string, data: ICompanyProfile): Promise<void> {
+        await CompanyProfileModel.findOneAndUpdate(
+            { userId },
+            { $set: { ...data, updatedAt: new Date() } },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
+    }
+
+    async getCompanyProfile(userId: string): Promise<ICompanyProfile | null> {
+        return CompanyProfileModel.findOne({ userId }).lean();
     }
 }

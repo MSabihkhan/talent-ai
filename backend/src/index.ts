@@ -13,8 +13,8 @@ import { SaveProfileUseCase } from './domain/use-cases/SaveProfileUseCase';
 import { GetProfileUseCase } from './domain/use-cases/GetProfileUseCase';   
 import { OpenRouterService } from './adapters/secondary/ai/OpenAIService';
 import { AnalyzeCvUseCase } from './domain/use-cases/AnalyzeCvUseCase';
-
-// ✅ ADD THESE IMPORTS
+import { SaveCompanyProfileUseCase } from './domain/use-cases/SaveCompanyProfileUseCase';
+import { GetCompanyProfileUseCase } from './domain/use-cases/GetCompanyProfileUseCase';
 import { JobRepository } from './adapters/secondary/db/JobRepository';
 import { ApplicationRepository } from './adapters/secondary/db/ApplicationRepository';
 import { JobController } from './adapters/primary/rest/controllers/IJobController';
@@ -42,6 +42,8 @@ const parseCvUseCase = new ParseCvUseCase(aiService);
 const saveProfileUseCase = new SaveProfileUseCase(userRepository);
 const getProfileUseCase = new GetProfileUseCase(userRepository);   
 const analyzeCvUseCase = new AnalyzeCvUseCase(aiService);
+const saveCompanyProfileUseCase = new SaveCompanyProfileUseCase(userRepository);
+const getCompanyProfileUseCase = new GetCompanyProfileUseCase(userRepository);
 
 const userController = new UserController(
   registerUser,
@@ -51,7 +53,9 @@ const userController = new UserController(
   parseCvUseCase,      
   saveProfileUseCase,  
   getProfileUseCase,
-  analyzeCvUseCase
+  analyzeCvUseCase,
+  saveCompanyProfileUseCase,
+  getCompanyProfileUseCase
 );
 
 // ============ JOB & APPLICATION SETUP ✅ ============

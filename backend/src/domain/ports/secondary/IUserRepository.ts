@@ -1,5 +1,5 @@
 import { User } from '../../models/User';
-import { ICandidateProfile, ParsedCvData } from '../../models/Profile';
+import { ICandidateProfile, ParsedCvData, ICompanyProfile } from '../../models/Profile';
 export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
   findById(id: string): Promise<User | null>;
@@ -8,5 +8,7 @@ export interface IUserRepository {
   update(id: string, data: Partial<User>): Promise<User | null>; 
   delete(id: string): Promise<boolean>;
   saveCvData(userId: string, cvData: ParsedCvData): Promise<void>;
-  getProfile(userId: string): Promise<ICandidateProfile | null>
+  getProfile(userId: string): Promise<ICandidateProfile | null>;
+  saveCompanyProfile(userId: string, data: ICompanyProfile): Promise<void>;
+  getCompanyProfile(userId: string): Promise<ICompanyProfile | null>;
 }
