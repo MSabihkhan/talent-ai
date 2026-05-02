@@ -34,6 +34,7 @@ export class PostJob {
             id: uuidv4(), // Generate UUID consistent with User setup[cite: 1]
             ...input,
             status: 'active',
+            views: 0,
             createdAt: new Date(),
             updatedAt: new Date()
         };

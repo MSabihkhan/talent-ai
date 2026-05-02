@@ -20,6 +20,7 @@ export interface IJob {
     description: string;
     requirements: string[];
     status: 'active' | 'closed';
+    views: number;
     createdAt: Date;
     updatedAt: Date;
 }

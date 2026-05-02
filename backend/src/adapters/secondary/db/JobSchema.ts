@@ -64,6 +64,10 @@ const JobSchema = new Schema<IJobDocument>(
             type: String,
             enum: ['active', 'closed'],
             default: 'active'
+        },
+        views: {
+            type: Number,
+            default: 0
         }
     },
     {

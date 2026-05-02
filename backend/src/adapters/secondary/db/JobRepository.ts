@@ -35,6 +35,10 @@ export class JobRepository implements IJobRepository {
         return result !== null;
     }
 
+    async incrementViews(id: string): Promise<void> {
+        await JobModel.findByIdAndUpdate(id, { $inc: { views: 1 } });
+    }
+
     // Convert MongoDB document to domain model
     private toJob(doc: any): IJob {
         return {
@@ -49,6 +53,7 @@ export class JobRepository implements IJobRepository {
             description: doc.description,
             requirements: doc.requirements,
             status: doc.status,
+            views: doc.views || 0,
             createdAt: doc.createdAt,
             updatedAt: doc.updatedAt
         };

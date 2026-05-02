@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { GetMyApplications } from '../../../../domain/use-cases/GetMyApplications';
 import { GetJobApplications } from '../../../../domain/use-cases/GetJobApplications';
 import { GetAllRecruiterApplications } from '../../../../domain/use-cases/GetAllRecruiterApplications';
+import { GetRecruiterAnalytics } from '../../../../domain/use-cases/GetRecruiterAnalytics';
 import { UpdateApplicationStatus } from '../../../../domain/use-cases/UpdateApplicationStatus';
 import { ApplicationRepository } from '../../../secondary/db/ApplicationRepository';
 import { JobRepository } from '../../../secondary/db/JobRepository';
@@ -77,6 +78,20 @@ export class ApplicationController {
             const useCase = new GetAllRecruiterApplications(this.applicationRepo, this.jobRepo, this.userRepo);
             const applications = await useCase.execute(recruiterId);
             res.json(applications);
+        } catch (error: any) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    // GET /api/applications/recruiter/analytics
+    async getAnalytics(req: AuthRequest, res: Response) {
+        try {
+            const recruiterId = req.user?.id;
+            if (!recruiterId) return res.status(401).json({ error: 'Unauthorized' });
+
+            const useCase = new GetRecruiterAnalytics(this.applicationRepo, this.jobRepo);
+            const stats = await useCase.execute(recruiterId);
+            res.json(stats);
         } catch (error: any) {
             res.status(500).json({ error: error.message });
         }

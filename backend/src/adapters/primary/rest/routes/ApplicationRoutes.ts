@@ -10,6 +10,7 @@ export const ApplicationRoutes = (controller: ApplicationController): Router => 
 
     // Recruiter routes
     router.get('/applications/recruiter/all', authMiddleware, (req, res) => controller.getAllRecruiterApplications(req as any, res));
+    router.get('/recruiter/analytics', authMiddleware, (req, res) => controller.getAnalytics(req as any, res));
     router.get('/jobs/:id/applications', authMiddleware, (req, res) => controller.getJobApplications(req as any, res));
     router.patch('/applications/:id/status', authMiddleware, (req, res) => controller.updateApplicationStatus(req as any, res));
 

@@ -6,6 +6,7 @@ export class GetJobById {
     constructor(private jobRepo: IJobRepository) {}
 
     async execute(jobId: string): Promise<IJob> {
+        await this.jobRepo.incrementViews(jobId);
         const job = await this.jobRepo.findById(jobId);
         
         if (!job) {
