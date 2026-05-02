@@ -4,13 +4,19 @@ import { AppError } from '../../../../shared/errors/AppError';
 import { LoginUser } from '@/domain/use-cases/LoginUser';
 import { DeleteUser } from '@/domain/use-cases/DeleteUser';
 import { UpdateProfile } from '@/domain/use-cases/UpdateProfile';
-
+import { SaveProfileUseCase } from '@/domain/use-cases/SaveProfileUseCase';
+import { ParseCvUseCase } from '@/domain/use-cases/ParseCvUseCase';
+import { GetProfileUseCase } from '@/domain/use-cases/GetProfileUseCase';
 
 export class UserController {
-  constructor(private registerUser: RegisterUser,
-  private loginUser: LoginUser,
-  private updateProfile:UpdateProfile,
-  private deleteUser: DeleteUser
+  constructor(
+    private registerUser: RegisterUser,
+    private loginUser: LoginUser,
+    private updateProfile: UpdateProfile,
+    private deleteUser: DeleteUser,
+    private parseCvUseCase: ParseCvUseCase,      
+    private saveProfileUseCase: SaveProfileUseCase,  
+    private getProfileUseCase: GetProfileUseCase     
   ) {}
 
   register = async (req: Request, res: Response) => {
@@ -22,28 +28,19 @@ export class UserController {
         user: { id: user.id, name: user.name, email: user.email, role: user.role }
       });
     } catch (err) {
-      if (err instanceof AppError) {
-        res.status(err.statusCode).json({ error: err.message, code: err.code });
-      } else {
-        res.status(500).json({ error: 'Internal server error' });
-      }
+      this.handleError(res, err);
     }
   };
   
-  login =async (req: Request, res:Response)=> {
-    try{
-        const {email,password} = req.body;
-        const result = await this.loginUser.execute({email,password})
-        res.status(200).json(result)
+  login = async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      const result = await this.loginUser.execute({ email, password });
+      res.status(200).json(result);
+    } catch (err) {
+      this.handleError(res, err);
     }
-    catch (err) {
-      if (err instanceof AppError) {
-        res.status(err.statusCode).json({ error: err.message, code: err.code });
-      } else {
-        res.status(500).json({ error: 'Internal server error' });
-      }
-    }
-  }
+  };
   
   delete = async (req: Request, res: Response) => {
     try {
@@ -55,21 +52,91 @@ export class UserController {
     }
   };
   
+  update = async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.id; 
+      const result = await this.updateProfile.execute(userId, req.body);
+      res.status(200).json(result);
+    } catch (err) {
+      this.handleError(res, err);
+    }
+  };
+
+  // ⭐ NEW CV METHODS
+  parseCv = async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'No file uploaded' 
+        });
+      }
+
+      const cvData = await this.parseCvUseCase.execute(
+        req.file.buffer, 
+        req.file.mimetype
+      );
+
+      res.json({ 
+        success: true, 
+        data: cvData 
+      });
+    } catch (err) {
+      this.handleError(res, err);
+    }
+  };
+
+  saveCv = async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.id;
+      const { cvData } = req.body;
+
+      if (!cvData) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'cvData is required' 
+        });
+      }
+
+      await this.saveProfileUseCase.execute(userId, cvData);
+
+      res.json({ 
+        success: true, 
+        message: 'Profile saved successfully' 
+      });
+    } catch (err) {
+      this.handleError(res, err);
+    }
+  };
+
+  getProfile = async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.id;
+
+      const profile = await this.getProfileUseCase.execute(userId);
+
+      if (!profile) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Profile not found' 
+        });
+      }
+
+      res.json({ 
+        success: true, 
+        data: profile 
+      });
+    } catch (err) {
+      this.handleError(res, err);
+    }
+  };
+  
   private handleError(res: Response, err: any) {
     if (err instanceof AppError) {
       res.status(err.statusCode).json({ error: err.message, code: err.code });
     } else {
+      console.error('Unexpected error:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
-  update = async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user.id; 
-    
-    const result = await this.updateProfile.execute(userId, req.body);
-    res.status(200).json(result);
-  } catch (err) {
-    this.handleError(res, err);
-  }
-};
 }

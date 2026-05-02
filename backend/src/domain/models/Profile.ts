@@ -1,3 +1,5 @@
+// domain/models/Profile.ts
+
 export interface ILink {
     github?: string;
     linkedin?: string;
@@ -7,7 +9,7 @@ export interface ILink {
 export interface IExperience {
     title: string;
     company: string;
-    timeline: string; // e.g., "Jan 2023 - Present"
+    timeline: string;
     description: string;
 }
 
@@ -31,4 +33,14 @@ export interface ICandidateProfile {
     profileViews: number;
     createdAt: Date;
     updatedAt: Date;
+}
+
+export interface ParsedCvData {
+    about: string;
+    skills: string[];
+    links: ILink;
+    experience: IExperience[];
+    yearsOfExperience: number;
+    education: IEducation[];
+    certifications: string[];
 }
