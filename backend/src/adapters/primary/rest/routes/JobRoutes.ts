@@ -1,0 +1,18 @@
+import { Router } from 'express';
+import { JobController } from '../controllers/IJobController';
+import { authMiddleware } from '../auth/authMiddleware'; 
+
+export const JobRoutes = (controller: JobController): Router => {
+    const router = Router();
+
+    // Public routes
+    router.get('/jobs', (req, res) => controller.getAllJobs(req, res));
+    router.get('/jobs/:id', (req, res) => controller.getJobById(req, res));
+
+    // Protected routes
+    router.post('/jobs', authMiddleware, (req, res) => controller.createJob(req, res));
+    router.patch('/jobs/:id', authMiddleware, (req, res) => controller.updateJob(req, res));
+    router.delete('/jobs/:id', authMiddleware, (req, res) => controller.deleteJob(req, res));
+
+    return router;
+};

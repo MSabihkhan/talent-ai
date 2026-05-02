@@ -14,6 +14,11 @@ import { GetProfileUseCase } from './domain/use-cases/GetProfileUseCase';
 import { OpenRouterService } from './adapters/secondary/ai/OpenAIService';
 import { AnalyzeCvUseCase } from './domain/use-cases/AnalyzeCvUseCase';
 
+// ✅ ADD THESE IMPORTS
+import { JobRepository } from './adapters/secondary/db/JobRepository';
+import { JobController } from './adapters/primary/rest/controllers/IJobController';
+import {JobRoutes} from './adapters/primary/rest/routes/JobRoutes'
+
 dotenv.config();
 
 const mongoUri = process.env.MONGO_URI;
@@ -22,11 +27,10 @@ const port = process.env.PORT;
 const app = express();
 app.use(express.json());
 
-// Adapters
+// ============ USER SETUP ============
 const userRepository = new MongooseUserRepository();
 const aiService = new OpenRouterService();                        
 
-// Use cases
 const registerUser = new RegisterUser(userRepository);
 const loginUser = new LoginUser(userRepository);
 const deleteUser = new DeleteUser(userRepository);
@@ -35,7 +39,7 @@ const parseCvUseCase = new ParseCvUseCase(aiService);
 const saveProfileUseCase = new SaveProfileUseCase(userRepository);
 const getProfileUseCase = new GetProfileUseCase(userRepository);   
 const analyzeCvUseCase = new AnalyzeCvUseCase(aiService);
-// Controller
+
 const userController = new UserController(
   registerUser,
   loginUser,
@@ -46,13 +50,18 @@ const userController = new UserController(
   getProfileUseCase,
   analyzeCvUseCase
 );
+// ============ JOB SETUP ✅ ============
+const jobRepository = new JobRepository();
+const jobController = new JobController(jobRepository, userRepository);
 
+// ============ ROUTES ============
 app.use('/api/users', createUserRoutes(userController));
+app.use('/api', JobRoutes(jobController));
 
-// --- Start ---
+// ============ START SERVER ============
 mongoose.connect(mongoUri!)
   .then(() => {
-    console.log('MongoDB connected');
-    app.listen(port, () => console.log(`Server on http://localhost:${port}`));
+    console.log('✅ MongoDB connected');
+    app.listen(port, () => console.log(`🚀 Server running on http://localhost:${port}`));
   })
-  .catch((err) => console.error('DB error:', err));
+  .catch((err) => console.error('❌ DB error:', err));
