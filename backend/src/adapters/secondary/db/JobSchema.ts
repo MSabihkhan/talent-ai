@@ -59,6 +59,11 @@ const JobSchema = new Schema<IJobDocument>(
         requirements: {
             type: [String],
             default: []
+        },
+        status: {
+            type: String,
+            enum: ['active', 'closed'],
+            default: 'active'
         }
     },
     {

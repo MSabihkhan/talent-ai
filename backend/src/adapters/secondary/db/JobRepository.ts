@@ -48,6 +48,7 @@ export class JobRepository implements IJobRepository {
             salaryRange: doc.salaryRange,
             description: doc.description,
             requirements: doc.requirements,
+            status: doc.status,
             createdAt: doc.createdAt,
             updatedAt: doc.updatedAt
         };

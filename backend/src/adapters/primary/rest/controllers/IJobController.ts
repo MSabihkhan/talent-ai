@@ -1,12 +1,14 @@
 import { Request, Response } from 'express';
 import { JobRepository } from '../../../secondary/db/JobRepository';
 import { MongooseUserRepository } from '../../../secondary/db/MongooseUserRepository';
+import { ApplicationRepository } from '../../../secondary/db/ApplicationRepository';
 import { PostJob } from '../../../../domain/use-cases/PostJob';
 import { GetJobs } from '../../../../domain/use-cases/GetJobs';
 import { GetJobById } from '../../../../domain/use-cases/GetJobsById';
 import { UpdateJob } from '../../../../domain/use-cases/UpdateJobs';
 import { DeleteJob } from '../../../../domain/use-cases/DeleteJob';
 import { GetRecruiterJobs } from '../../../../domain/use-cases/GetRecruiterJobs';
+import { ApplyForJob } from '../../../../domain/use-cases/ApplyForJob';
 import mongoose from 'mongoose';
 
 interface AuthRequest extends Request {
@@ -20,11 +22,13 @@ interface AuthRequest extends Request {
 export class JobController {
     private jobRepo: JobRepository;
     private userRepo: MongooseUserRepository;
+    private applicationRepo: ApplicationRepository;
 
     // ✅ Constructor accepts both repositories
-    constructor(jobRepo: JobRepository, userRepo: MongooseUserRepository) {
+    constructor(jobRepo: JobRepository, userRepo: MongooseUserRepository, applicationRepo: ApplicationRepository) {
         this.jobRepo = jobRepo;
         this.userRepo = userRepo;
+        this.applicationRepo = applicationRepo;
     }
 
     // POST /api/jobs
@@ -36,16 +40,11 @@ export class JobController {
                 return res.status(401).json({ error: 'Unauthorized' });
             }
 
-            const job = {
-                id: new mongoose.Types.ObjectId().toString(),
-                recruiterId,
-                ...req.body,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            };
-
             const useCase = new PostJob(this.jobRepo, this.userRepo);
-            const created = await useCase.execute(job);
+            const created = await useCase.execute({
+                recruiterId,
+                ...req.body
+            });
             
             res.status(201).json(created);
         } catch (error: any) {
@@ -121,6 +120,52 @@ export class JobController {
             const useCase = new GetRecruiterJobs(this.jobRepo);
             const jobs = await useCase.execute(recruiterId);
             res.json(jobs);
+        } catch (error: any) {
+            res.status(error.statusCode || 500).json({ error: error.message });
+        }
+    }
+
+    // POST /api/jobs/:id/apply
+    async applyForJob(req: AuthRequest, res: Response) {
+        try {
+            const candidateId = req.user?.id;
+            const jobId = req.params.id;
+
+            if (!candidateId) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const useCase = new ApplyForJob(this.applicationRepo, this.jobRepo, this.userRepo);
+            const application = await useCase.execute(jobId, candidateId);
+
+            res.status(201).json(application);
+        } catch (error: any) {
+            res.status(error.statusCode || 500).json({ error: error.message });
+        }
+    }
+
+    // PATCH /api/jobs/:id/status
+    async updateJobStatus(req: AuthRequest, res: Response) {
+        try {
+            const recruiterId = req.user?.id;
+            const jobId = req.params.id;
+            const { status } = req.body;
+
+            if (!recruiterId) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            if (!['active', 'closed'].includes(status)) {
+                return res.status(400).json({ error: 'Invalid status' });
+            }
+
+            const job = await this.jobRepo.findById(jobId);
+            if (!job || job.recruiterId !== recruiterId) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const updatedJob = await this.jobRepo.update(jobId, { status, updatedAt: new Date() });
+            res.json(updatedJob);
         } catch (error: any) {
             res.status(error.statusCode || 500).json({ error: error.message });
         }

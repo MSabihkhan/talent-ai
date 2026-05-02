@@ -16,8 +16,11 @@ import { AnalyzeCvUseCase } from './domain/use-cases/AnalyzeCvUseCase';
 
 // ✅ ADD THESE IMPORTS
 import { JobRepository } from './adapters/secondary/db/JobRepository';
+import { ApplicationRepository } from './adapters/secondary/db/ApplicationRepository';
 import { JobController } from './adapters/primary/rest/controllers/IJobController';
 import {JobRoutes} from './adapters/primary/rest/routes/JobRoutes'
+import { ApplicationController } from './adapters/primary/rest/controllers/ApplicationController';
+import { ApplicationRoutes } from './adapters/primary/rest/routes/ApplicationRoutes';
 
 dotenv.config();
 
@@ -50,13 +53,17 @@ const userController = new UserController(
   getProfileUseCase,
   analyzeCvUseCase
 );
-// ============ JOB SETUP ✅ ============
+
+// ============ JOB & APPLICATION SETUP ✅ ============
 const jobRepository = new JobRepository();
-const jobController = new JobController(jobRepository, userRepository);
+const applicationRepository = new ApplicationRepository();
+const jobController = new JobController(jobRepository, userRepository, applicationRepository);
+const applicationController = new ApplicationController(applicationRepository, jobRepository, userRepository);
 
 // ============ ROUTES ============
 app.use('/api/users', createUserRoutes(userController));
 app.use('/api', JobRoutes(jobController));
+app.use('/api', ApplicationRoutes(applicationController));
 
 // ============ START SERVER ============
 mongoose.connect(mongoUri!)

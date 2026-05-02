@@ -33,6 +33,7 @@ export class PostJob {
         const newJob: IJob = {
             id: uuidv4(), // Generate UUID consistent with User setup[cite: 1]
             ...input,
+            status: 'active',
             createdAt: new Date(),
             updatedAt: new Date()
         };

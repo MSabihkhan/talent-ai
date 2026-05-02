@@ -19,6 +19,7 @@ export interface IJob {
     salaryRange: ISalaryRange;
     description: string;
     requirements: string[];
+    status: 'active' | 'closed';
     createdAt: Date;
     updatedAt: Date;
 }
